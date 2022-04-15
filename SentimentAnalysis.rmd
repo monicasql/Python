@@ -1,0 +1,60 @@
+---
+date: "04/27/2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Read necessary libraries
+
+```{r, message=FALSE}
+library(readr)
+library(dplyr)
+library(ggformula)
+```
+
+Import the cleaned data file from Python using read_csv function from readr package
+
+```{r, echo=FALSE}
+tweet_df <- read_csv("finalcleaned.csv")
+#Check first 10 rows of the dataframe
+head(tweet_df,10)
+```
+Plot the data using gf_bar function from ggformula package
+
+```{r}
+
+gf_bar(~tweet_df$sentiment, fill = rainbow(3), xlab = 'sentiment', ylab = 'count of tweets', title = 'Sentiment Analysis of peoples opinions on Climate Change')%>%
+  gf_theme(theme = theme_bw())
+```
+Perform 1-sample proportion test
+
+Null-hypothesis - p1 = 0.5 i.e. Proportion of people who believe that climate change is real is 50%
+Alternate-hypothesis - p1 > 0.5 i.e. Proportion of people who believe that climate change is real is greater than 50%
+
+```{r}
+numBeliever = length(which(tweet_df$sentiment == "Believer"))
+numBeliever
+
+numDenier = length(which(tweet_df$sentiment == "Denier"))
+numDenier
+
+TotalTweets = length(tweet_df$sentiment)
+TotalTweets
+
+TweetMatrix = matrix(c(numBeliever,numDenier), nr=1)
+
+#Using prop.test below, I used x to be a two-dimensional table with 2 columns - successes - numBeliever, failures - numDenier
+#Reference https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prop.test.html
+
+prop.test(TweetMatrix, p =0.5, alternative ="greater")
+
+```
+Conclusion:-
+
+Based on the p-value above which is less than 2.2e-16, at the alpha = 0.05 significance level, there is enough evidence to claim that that the proportion of people who believe that climate change is real is greater than the proportion of people who believe that climate change is not real
+
